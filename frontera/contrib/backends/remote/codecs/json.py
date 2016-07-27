@@ -47,10 +47,16 @@ class Encoder(BaseEncoder, CrawlFrontierJSONEncoder):
             'seeds': [_prepare_request_message(seed) for seed in seeds]
         })
 
-    def encode_page_crawled(self, response, links):
+    def encode_page_crawled(self, response):
         return self.encode({
             'type': 'page_crawled',
-            'r': _prepare_response_message(response, self.send_body),
+            'r': _prepare_response_message(response, self.send_body)
+        })
+
+    def encode_links_extracted(self, request, links):
+        return self.encode({
+            'type': 'links_extracted',
+            'r': _prepare_request_message(request),
             'links': _prepare_links_message(links)
         })
 
@@ -107,10 +113,13 @@ class Decoder(json.JSONDecoder, BaseDecoder):
 
     def decode(self, message):
         message = super(Decoder, self).decode(message)
+        if message['type'] == 'links_extracted':
+            request = self._request_from_object(message['r'])
+            links = [self._request_from_object(link) for link in message['links']]
+            return ('links_extracted', request, links)
         if message['type'] == 'page_crawled':
             response = self._response_from_object(message['r'])
-            links = [self._request_from_object(link) for link in message['links']]
-            return ('page_crawled', response, links)
+            return ('page_crawled', response)
         if message['type'] == 'request_error':
             request = self._request_from_object(message['r'])
             return ('request_error', request, message['error'])
