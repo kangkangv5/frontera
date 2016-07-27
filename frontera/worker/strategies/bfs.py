@@ -13,8 +13,10 @@ class CrawlingStrategy(BaseCrawlingStrategy):
                 seed.meta['state'] = States.QUEUED
                 self.schedule(seed)
 
-    def page_crawled(self, response, links):
+    def page_crawled(self, response):
         response.meta['state'] = States.CRAWLED
+
+    def links_extracted(self, request, links):
         for link in links:
             if link.meta['state'] is States.NOT_CRAWLED:
                 link.meta['state'] = States.QUEUED
