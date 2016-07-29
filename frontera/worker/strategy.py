@@ -135,7 +135,7 @@ class StrategyWorker(object):
                         self.states_context.to_fetch(seeds)
                         continue
                     if type == 'page_crawled':
-                        _, response = msg
+                        _, response, _ = msg
                         self.states_context.to_fetch(response)
                         continue
                     if type == 'links_extracted':
@@ -171,7 +171,7 @@ class StrategyWorker(object):
                     continue
 
                 if type == 'page_crawled':
-                    _, response = msg
+                    _, response, _ = msg
                     if 'jid' not in response.meta or response.meta['jid'] != self.job_id:
                         continue
                     self.on_page_crawled(response)
